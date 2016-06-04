@@ -6,6 +6,7 @@ import com.badlogic.gdx.net.ServerSocket;
 import com.badlogic.gdx.net.ServerSocketHints;
 import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.utils.Json;
+import com.mygdx.game.screens.GameScreen;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,12 +22,12 @@ public class Server {
     private LinkedBlockingQueue<String> messages;
     private ServerSocket serverSocket;
 
-    public Server(int port) {
+    public Server(int port, final GameScreen gameScreen) {
         clients = new ArrayList<ClientConnection>();
         messages = new LinkedBlockingQueue<String>();
 
         ServerSocketHints hints = new ServerSocketHints();
-        // TODO: ver se isto e nessessario
+        // TODO: ver se isto e necessario
         hints.acceptTimeout = 0;
         serverSocket = Gdx.net.newServerSocket(Net.Protocol.TCP, port, hints);
 
@@ -35,9 +36,11 @@ public class Server {
             @Override
             public void run() {
                 while (true) {
-                    Socket client = serverSocket.accept(null);
-                    clients.add(new ClientConnection(client));
-                    System.out.println("A client has connected...");
+                    if (clients.size() < 2) {
+                        Socket client = serverSocket.accept(null);
+                        clients.add(new ClientConnection(client));
+                        System.out.println("A client has connected...");
+                    }
                 }
             }
         }).start();
@@ -51,7 +54,20 @@ public class Server {
                         Json json = new Json();
                         Message message = json.fromJson(Message.class, messages.take());
                         // TODO: handling das mensagens
-                        System.out.println(message.toJson());
+                        gameScreen.handleMessage(message);
+                        /*
+                        if (message.getTag().equals("play")) {
+                            float impulse = (Float) message.getValue("impulse");
+                            float direction = (Float) message.getValue("direction");
+                            float spin = (Float) message.getValue("spin");
+                            gameScreen.getTable().shoot(impulse, direction, spin);
+                        }
+
+                        if (message.getTag().equals("aim")) {
+                            float direction = (Float) message.getValue("direction");
+                            gameScreen.getTable().getCueBall().setDirection(direction);
+                        }
+                        System.out.println(message.toJson());*/
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

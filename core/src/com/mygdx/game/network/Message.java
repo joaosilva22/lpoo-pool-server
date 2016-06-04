@@ -30,6 +30,21 @@ public class Message {
         return json.toJson(this);
     }
 
+    public String getTag() {
+        return tag;
+    }
+
+    public ArrayList<MessageArgument> getArgs() {
+        return args;
+    }
+
+    public Object getValue(String name) {
+        for (MessageArgument arg : args)
+            if (arg.getName().equals(name))
+                return arg.getValue();
+        return null;
+    }
+
     static private class MessageArgument {
         private String name;
         private Object value;
@@ -42,6 +57,14 @@ public class Message {
         public MessageArgument(String name, Object value) {
             this.name = name;
             this.value = value;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public Object getValue() {
+            return value;
         }
     }
 }

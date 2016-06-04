@@ -25,6 +25,8 @@ public class Table {
 
     private static final float BALL_RADIUS = 0.030f;
 
+    private static final float MAX_IMPULSE = 0.1f;
+
     private World world;
     private float width;
     private float height;
@@ -32,7 +34,7 @@ public class Table {
 
     private ArrayList<Ball> balls;
     private ArrayList<Cushion> cushions;
-    private Ball cueBall;
+    private CueBall cueBall;
 
     /**
      * Creates a Table object, representing a pool Table.
@@ -47,7 +49,7 @@ public class Table {
         width = w; height = h;
         world = wld;
 
-        cueBall = new Ball(width / 2, height / 2, BALL_RADIUS, world);
+        cueBall = new CueBall(width / 2, height / 2, BALL_RADIUS, world);
         balls = new ArrayList<Ball>();
 
         // region Adding the table's cushions
@@ -122,18 +124,24 @@ public class Table {
     /**
      * Shoots the cue ball in the given direction and with the given
      * force.
-     * @param force The force to apply to the ball in Newtons
+     * @param mult The multiplier of the impulse to apply to the ball
      * @param direction The angle to shoot the ball at (radians)
      * @param spin The angle that the cue makes with the ball (radians)
      */
-    public boolean shoot(float force, float direction, float spin) {
+    public boolean shoot(float mult, float direction, float spin) {
         Vector2 impulse = new Vector2( (float) Math.cos(direction), (float) Math.sin(direction));
-        impulse.setLength(force);
+        impulse.setLength(mult * MAX_IMPULSE);
 
         Vector2 hitPos = new Vector2();
-        hitPos.x = cueBall.getPosition().x;
+        hitPos.x = cueBall.getPosition().x + (float) Math.cos(spin) * BALL_RADIUS;
+        hitPos.y = cueBall.getPosition().y + (float) Math.sin(spin) * BALL_RADIUS;
+
+        cueBall.getBody().applyLinearImpulse(impulse, hitPos, true);
         // TODO: terminar o que eu estava a fazer aqui...
         return false;
     }
 
+    public CueBall getCueBall() {
+        return cueBall;
+    }
 }

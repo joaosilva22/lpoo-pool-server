@@ -1,5 +1,6 @@
 package com.mygdx.game.sprites;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -8,6 +9,8 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 
 public class CueBall extends Ball {
+    private float direction;
+
     /**
      * Creates a CueBall object, a specific type of Ball that
      * allows the application of user define forces. Represents
@@ -19,5 +22,14 @@ public class CueBall extends Ball {
      */
     public CueBall(float x, float y, float radius, World world) {
         super(x, y, radius, world);
+        direction = (float) Math.PI;
+    }
+
+    public float getDirection() {
+        return direction;
+    }
+
+    public void setDirection(float direction) {
+        this.direction = direction;
     }
 }
