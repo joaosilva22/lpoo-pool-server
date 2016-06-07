@@ -58,10 +58,11 @@ public enum GameStates implements State<GameScreen> {
                 entity.getStateManager().setState(DONE);
             }
 
-
             // Informa o jogador 1 que e a sua vez de jogar
             Message beginTurn = new Message("begin-turn");
             entity.getServer().write(0, beginTurn.toJson());
+
+            System.out.println("Entered player 1 turn");
         }
 
         @Override
@@ -115,6 +116,8 @@ public enum GameStates implements State<GameScreen> {
             // Informa o jogador 2 que e a sua vez de jogar
             Message beginTurn = new Message("begin-turn");
             entity.getServer().write(1, beginTurn.toJson());
+
+            System.out.println("Entered player 1 turn");
         }
 
         @Override

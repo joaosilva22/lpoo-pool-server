@@ -21,6 +21,8 @@ public enum TableStates implements State<Table> {
                     entity.setFirstPocket(true);
                 else
                     entity.setFirstPocket(false);
+
+            System.out.println("Entered table before turn");
         }
 
         @Override
@@ -42,12 +44,13 @@ public enum TableStates implements State<Table> {
     RESOLVING() {
         @Override
         public void enter(Table entity) {
-
+            System.out.println("Entered resolving");
         }
 
         @Override
         public void update(Table entity, float delta) {
             if (entity.isTableStatic()) {
+                System.out.println("Table is static");
                 entity.getStateManager().setState(AFTER);
             }
         }
@@ -66,7 +69,7 @@ public enum TableStates implements State<Table> {
     AFTER() {
         @Override
         public void enter(Table entity) {
-
+            System.out.println("Entered after");
         }
 
         @Override

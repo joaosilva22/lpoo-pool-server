@@ -36,8 +36,8 @@ public class Ball {
         // Utilizado na simulacao da fisica
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef.linearDamping = 0.6f;
-        bodyDef.angularDamping = 0.6f;
+        bodyDef.linearDamping = 0.7f;
+        bodyDef.angularDamping = 0.7f;
         bodyDef.position.set(x, y);
 
         body = world.createBody(bodyDef);
@@ -46,7 +46,7 @@ public class Ball {
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
-        fixtureDef.density = 4f;
+        fixtureDef.density = 5f;
         fixtureDef.restitution = 0.8f;
         fixture = body.createFixture(fixtureDef);
 

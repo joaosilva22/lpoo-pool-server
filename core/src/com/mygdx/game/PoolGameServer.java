@@ -3,6 +3,7 @@ package com.mygdx.game;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -19,11 +20,17 @@ public class PoolGameServer extends Game {
 	public BitmapFont font;
 	private FreeTypeFontGenerator generator;
 
+	private Music music;
+
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 		font = new BitmapFont();
 		generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/AlexandriaFLF-Bold.ttf"));
+		music = Gdx.audio.newMusic(Gdx.files.internal("audio/music.wav"));
+		music.setVolume(0.05f);
+		music.setLooping(true);
+		music.play();
 		this.setScreen(new MainMenuScreen(this));
 	}
 
@@ -42,5 +49,7 @@ public class PoolGameServer extends Game {
 	public void dispose() {
 		batch.dispose();
 		font.dispose();
+		music.dispose();
+		generator.dispose();
 	}
 }

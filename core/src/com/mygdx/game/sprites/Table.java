@@ -1,6 +1,7 @@
 package com.mygdx.game.sprites;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
@@ -69,6 +70,9 @@ public class Table {
 
     private ArrayList<Ball> scheduledToRelocate;
     private ArrayList<Vector2> relocatePositions;
+
+    private Sound ballsfx;
+    private Sound cuesfx;
 
     /**
      * Creates a Table object.
@@ -149,6 +153,9 @@ public class Table {
         relocatePositions = new ArrayList<Vector2>();
 
         firstPocket = true;
+
+        ballsfx = Gdx.audio.newSound(Gdx.files.internal("audio/ball.wav"));
+        cuesfx = Gdx.audio.newSound(Gdx.files.internal("audio/cue.wav"));
 
         // region Adding the table's cushions
         cushions = new ArrayList<Cushion>();
@@ -253,7 +260,11 @@ public class Table {
         hitPos.x = cueBall.getPosition().x + (float) Math.cos(spin) * BALL_RADIUS;
         hitPos.y = cueBall.getPosition().y + (float) Math.sin(spin) * BALL_RADIUS;
 
-        if (stateManager.getState().equals(TableStates.BEFORE)) cueBall.getBody().applyLinearImpulse(impulse, hitPos, true);
+        if (stateManager.getState().equals(TableStates.BEFORE)) {
+            cuesfx.play(1.0f);
+            cueBall.getBody().applyLinearImpulse(impulse, hitPos, true);
+        }
+        //System.out.println(cueBall.getBody().getLinearVelocity().len2() + " " + cueBall.getBody().getAngularVelocity());
         stateManager.setState(TableStates.RESOLVING);
         return false;
     }
@@ -267,8 +278,9 @@ public class Table {
         for (Ball ball : balls)
             if (ball.getBody().getLinearVelocity().len2() != 0 && ball.getBody().getAngularVelocity() != 0)
                 ret = false;
-        if (cueBall.getBody().getLinearVelocity().len2() != 0 && cueBall.getBody().getAngularVelocity() != 0)
+        if (cueBall.getBody().getLinearVelocity().len2() != 0 && cueBall.getBody().getAngularVelocity() != 0) {
             ret = false;
+        }
         return ret;
     }
 
@@ -324,6 +336,8 @@ public class Table {
             BallData ballData = (BallData) cueBall.getFixture().getUserData();
             if (ballData.getCollisions().size == 0) return false;
 
+            if (!ballData.getCollisions().first().getType().equals(BallData.Type.BLACK)) return false;
+
             if (!ballData.getCollisions().first().getType().equals(BallData.Type.SOLID) && !firstPocket)
                 return false;
 
@@ -335,6 +349,8 @@ public class Table {
         if (type.equals(BallData.Type.STRIPE)) {
             BallData ballData = (BallData) cueBall.getFixture().getUserData();
             if (ballData.getCollisions().size == 0) return false;
+
+            if (!ballData.getCollisions().first().getType().equals(BallData.Type.BLACK)) return false;
 
             if (!ballData.getCollisions().first().getType().equals(BallData.Type.STRIPE) && !firstPocket)
                 return false;
@@ -368,7 +384,7 @@ public class Table {
         // Se a bola preta for embolsada
         // Verifica quem ganhou e quem perdeu
         if (hasPocketedBlackBall) {
-            if (getActivePlayer().getPoints() == 8) {
+            if (getActivePlayer().getPoints() > 6) {
                 getActivePlayer().setWon(true);
             } else {
                 int other = 0;
@@ -408,7 +424,7 @@ public class Table {
         // De volta a mesa, por falta do jogador
         if (ballData.getType().equals(BallData.Type.STRIPE) && removeStripe) {
             Random rand = new Random();
-            relocatePos = new Vector2(rand.nextFloat() * (width - WALL_WIDTH * 2 - CUSHION_HEIGHT * 2) + WALL_WIDTH * 2 + CUSHION_HEIGHT * 2, rand.nextFloat() * (height - WALL_WIDTH * 2 - CUSHION_HEIGHT * 2) + WALL_WIDTH * 2 + CUSHION_HEIGHT * 2);
+            relocatePos = new Vector2(rand.nextFloat() * (width - WALL_WIDTH * 4 - CUSHION_HEIGHT * 4) + WALL_WIDTH * 4 + CUSHION_HEIGHT * 4, rand.nextFloat() * (height - WALL_WIDTH * 4 - CUSHION_HEIGHT * 4) + WALL_WIDTH * 4 + CUSHION_HEIGHT * 4);
             removeStripe = false;
         }
 
@@ -429,7 +445,7 @@ public class Table {
         // De volta a mesa, por falta do jogador
         if (ballData.getType().equals(BallData.Type.SOLID) && removeSolid) {
             Random rand = new Random();
-            relocatePos = new Vector2(rand.nextFloat() * (width - WALL_WIDTH * 2 - CUSHION_HEIGHT * 2) + WALL_WIDTH * 2 + CUSHION_HEIGHT * 2, rand.nextFloat() * (height - WALL_WIDTH * 2 - CUSHION_HEIGHT * 2) + WALL_WIDTH * 2 + CUSHION_HEIGHT * 2);
+            relocatePos = new Vector2(rand.nextFloat() * (width - WALL_WIDTH * 4 - CUSHION_HEIGHT * 4) + WALL_WIDTH * 4 + CUSHION_HEIGHT * 4, rand.nextFloat() * (height - WALL_WIDTH * 4 - CUSHION_HEIGHT * 4) + WALL_WIDTH * 4 + CUSHION_HEIGHT * 4);
             removeSolid = false;
         }
 
@@ -702,5 +718,13 @@ public class Table {
      */
     public Queue<Integer> getPocketedStripes() {
         return pocketedStripes;
+    }
+
+    /**
+     * Returns the sound effect for the ball.
+     * @return The sound effect.
+     */
+    public Sound getBallsfx() {
+        return ballsfx;
     }
 }

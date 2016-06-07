@@ -26,6 +26,7 @@ public class CollisionListener implements ContactListener {
 
         // Colisao entre bola branca e bola normal
         if (fixtureA.getUserData() instanceof BallData && fixtureB.getUserData() instanceof BallData) {
+            table.getBallsfx().play(1.0f);
             // Se uma das bolas for a bola branca
             // Adiciona bola a fila de colisoes da bola branca
             BallData userDataA = (BallData) fixtureA.getUserData();

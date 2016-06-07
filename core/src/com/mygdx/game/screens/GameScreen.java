@@ -1,7 +1,10 @@
 package com.mygdx.game.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -9,15 +12,20 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.GdxNativesLoader;
 import com.mygdx.game.PoolGameServer;
 import com.mygdx.game.manager.StateManager;
 import com.mygdx.game.manager.states.GameStates;
+import com.mygdx.game.manager.states.TableStates;
 import com.mygdx.game.network.Message;
 import com.mygdx.game.network.Server;
 import com.mygdx.game.physics.CollisionListener;
+import com.mygdx.game.sprites.Ball;
+import com.mygdx.game.sprites.BallData;
 import com.mygdx.game.sprites.Player;
 import com.mygdx.game.sprites.StopWatch;
 import com.mygdx.game.sprites.Table;
@@ -46,6 +54,10 @@ public class GameScreen implements Screen {
     private BitmapFont fontSmall;
 
     private StopWatch stopWatch;
+
+    private Vector2 p1, p2, collision, normal, reflection, colscl;
+    private RayCastCallback callback;
+    private boolean debug;
 
     // Debugging --------------------------------
     // TODO: apagar quando nao for necessario
@@ -85,6 +97,56 @@ public class GameScreen implements Screen {
         // TODO: apagar quando nao for necessario
         shapeRenderer = new ShapeRenderer();
 
+        // Desenhar o raio que preve o movimento da bola
+        p1 = new Vector2(table.getCueBall().getPosition().x, table.getCueBall().getPosition().y);
+        p2 = new Vector2();
+        p2.x = table.getCueBall().getPosition().x + 10 * (float) Math.cos(table.getCueBall().getDirection());
+        p2.y = table.getCueBall().getPosition().y + 10 * (float) Math.sin(table.getCueBall().getDirection());
+        collision = new Vector2();
+        normal = new Vector2();
+        reflection = new Vector2();
+        colscl = new Vector2();
+        debug = false;
+
+        callback = new RayCastCallback() {
+            @Override
+            public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
+                collision = point;
+                Vector2 s = (point.cpy().sub(p1.cpy()));
+                s.setLength(s.len() - 0.03f);
+                colscl.set(p1.cpy()).add(s);
+                Vector2 n = normal.cpy().scl(-1);
+                Vector2 d = colscl.cpy().sub(p1.cpy());
+                //System.out.println(d.angle(n));
+                reflection.set(d.cpy().sub(n.cpy().scl(2 * d.cpy().dot(n.cpy()))));
+                reflection.setLength(0.1f).add(point);
+                GameScreen.this.normal.set(normal).add(point);
+                return fraction;
+            }
+        };
+
+        // Opcoes super secretas
+        // Para terminar o jogo mais rapido
+        Gdx.input.setInputProcessor(new InputAdapter() {
+            @Override
+            public boolean keyUp(int keycode) {
+                if (keycode == Input.Keys.SPACE) {
+                    if ((stateManager.getState().equals(GameStates.PLAYER_1_TURN) || stateManager.getState().equals(GameStates.PLAYER_2_TURN))
+                            && (table.getPocketedSolids().size != 7)) {
+                        table.getPlayers().get(0).setType(BallData.Type.SOLID);
+                        table.getPlayers().get(1).setType(BallData.Type.STRIPE);
+                        for (Ball ball : table.getBalls()) {
+                            BallData ballData = (BallData) ball.getFixture().getUserData();
+                            if (!ballData.getType().equals(BallData.Type.BLACK)) {
+                                table.scheduleToRelocate(ballData);
+                                table.pocketBall(ballData);
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
+        });
     }
 
     @Override
@@ -190,10 +252,18 @@ public class GameScreen implements Screen {
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
-        Vector2 target = new Vector2();
-        target.x = table.getCueBall().getPosition().x + 10 * (float) Math.cos(table.getCueBall().getDirection());
-        target.y = table.getCueBall().getPosition().y + 10 * (float) Math.sin(table.getCueBall().getDirection());
-        shapeRenderer.line(table.getCueBall().getPosition().x, table.getCueBall().getPosition().y, target.x, target.y);
+        if ((stateManager.getState().equals(GameStates.PLAYER_1_TURN) || stateManager.getState().equals(GameStates.PLAYER_2_TURN))
+                && table.getStateManager().getState().equals(TableStates.BEFORE)) {
+            world.rayCast(callback, p1, p2);
+            p1.set(table.getCueBall().getPosition().x, table.getCueBall().getPosition().y);
+            p2.x = table.getCueBall().getPosition().x + 10 * (float) Math.cos(table.getCueBall().getDirection());
+            p2.y = table.getCueBall().getPosition().y + 10 * (float) Math.sin(table.getCueBall().getDirection());
+            shapeRenderer.setColor(Color.WHITE);
+            shapeRenderer.line(p1, colscl);
+            shapeRenderer.line(colscl, reflection);
+            shapeRenderer.circle(colscl.x, colscl.y, 0.03f, 20);
+            shapeRenderer.circle(table.getCueBall().getPosition().x, table.getCueBall().getPosition().y, 0.1f, 20);
+        }
 
         shapeRenderer.end();
         // End debugging --------------------------------
@@ -202,7 +272,7 @@ public class GameScreen implements Screen {
         if (!world.isLocked())
             table.relocate();
 
-        debugRenderer.render(world, camera.combined);
+        if (debug) debugRenderer.render(world, camera.combined);
         world.step(1/60f, 9, 3);
     }
 
