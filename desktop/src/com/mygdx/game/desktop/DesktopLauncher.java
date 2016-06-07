@@ -8,7 +8,7 @@ public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.width = 872;
-		config.height = 482;
+		config.height = 578;
 		new LwjglApplication(new PoolGameServer(), config);
 	}
 }

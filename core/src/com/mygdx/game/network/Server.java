@@ -11,6 +11,7 @@ import com.mygdx.game.screens.GameScreen;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -53,23 +54,9 @@ public class Server {
                     try {
                         Json json = new Json();
                         Message message = json.fromJson(Message.class, messages.take());
-                        // TODO: handling das mensagens
                         gameScreen.handleMessage(message);
-                        /*
-                        if (message.getTag().equals("play")) {
-                            float impulse = (Float) message.getValue("impulse");
-                            float direction = (Float) message.getValue("direction");
-                            float spin = (Float) message.getValue("spin");
-                            gameScreen.getTable().shoot(impulse, direction, spin);
-                        }
-
-                        if (message.getTag().equals("aim")) {
-                            float direction = (Float) message.getValue("direction");
-                            gameScreen.getTable().getCueBall().setDirection(direction);
-                        }
-                        System.out.println(message.toJson());*/
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        return;
                     }
                 }
             }
@@ -85,29 +72,58 @@ public class Server {
             client.write(message);
     }
 
+    public void disconnect() {
+        for (ClientConnection client : clients)
+            client.disconnect();
+        serverSocket.dispose();
+    }
+
+    public boolean isConnected(int index) {
+        return clients.get(index).isConnected();
+    }
+
+    public ArrayList<Integer> getDisconnectedClients() {
+        ArrayList<Integer> ret = new ArrayList<Integer>();
+        for (int i = 0; i < clients.size(); i++)
+            if (!clients.get(i).isConnected())
+                ret.add(i);
+        return ret;
+    }
+
     private class ClientConnection {
         private Socket client;
         private BufferedReader in;
+        private Thread read;
+        private boolean connected;
 
         public ClientConnection(Socket socket) {
             client = socket;
             in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+            connected = true;
 
             // Thread para ler as mensagens enviadas pelo cliente
-            new Thread(new Runnable() {
+            read = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    while (true) {
-                        try {
-                            messages.put(in.readLine());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                    try {
+                        while (!Thread.currentThread().isInterrupted()) {
+                            String toRead = in.readLine();
+                            if (toRead == null) {
+                                connected = false;
+                                return;
+                            }
+                            messages.put(toRead);
                         }
+                    } catch (IOException e) {
+                        connected = false;
+                        return;
+                    } catch (InterruptedException e) {
+                        connected = false;
+                        return;
                     }
                 }
-            }).start();
+            });
+            read.start();
         }
 
         public void write(String message) {
@@ -117,6 +133,15 @@ public class Server {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+
+        public boolean isConnected() {
+            return connected;
+        }
+
+        public void disconnect() {
+            read.interrupt();
+            client.dispose();
         }
     }
 }
