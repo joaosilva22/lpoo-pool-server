@@ -558,4 +558,16 @@ public class Table {
     public void setFirstPocket(boolean firstPocket) {
         this.firstPocket = firstPocket;
     }
+
+    public ArrayList<Ball> getBalls() {
+        return balls;
+    }
+
+    public Queue<Integer> getPocketedSolids() {
+        return pocketedSolids;
+    }
+
+    public Queue<Integer> getPocketedStripes() {
+        return pocketedStripes;
+    }
 }

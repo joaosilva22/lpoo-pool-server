@@ -16,7 +16,6 @@ public enum TableStates implements State<Table> {
             entity.setHasPocketedStripe(false);
             entity.setHasPocketedCueball(false);
             ((BallData)entity.getCueBall().getFixture().getUserData()).clearCollision();
-            System.out.println(entity.getActivePlayerIndex());
             if (entity.getActivePlayerIndex() != -1)
                 if (entity.getActivePlayer().getType() == null)
                     entity.setFirstPocket(true);
