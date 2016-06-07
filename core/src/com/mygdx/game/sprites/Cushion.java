@@ -15,7 +15,6 @@ public class Cushion {
     /**
      * Creates a Cushion object, made up of a Box2D body as well
      * as a sprite. Represents the cushion in a pool table.
-     *
      * @param vertices The vertices that make up the cushion shape. Must be provided in anti-clockwise order.
      * @param world The Box2D world to which the Cushion will be added
      */

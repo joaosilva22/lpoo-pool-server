@@ -23,6 +23,12 @@ public class Server {
     private LinkedBlockingQueue<String> messages;
     private ServerSocket serverSocket;
 
+    /**
+     * Creates a Server object.
+     * Handles the connection with multiple clients.
+     * @param port The server's port.
+     * @param gameScreen The GameScreen responsible for the server.
+     */
     public Server(int port, final GameScreen gameScreen) {
         clients = new ArrayList<ClientConnection>();
         messages = new LinkedBlockingQueue<String>();
@@ -63,25 +69,46 @@ public class Server {
         }).start();
     }
 
+    /**
+     * Writes to the client identified by the given index.
+     * @param index The client's index.
+     * @param message The message to write.
+     */
     public void write(int index, String message) {
         clients.get(index).write(message);
     }
 
+    /**
+     * Writes to all the clients connected to the server.
+     * @param message The message to write.
+     */
     public void writeToAll(String message) {
         for (ClientConnection client : clients)
             client.write(message);
     }
 
+    /**
+     * Disconnects the server.
+     */
     public void disconnect() {
         for (ClientConnection client : clients)
             client.disconnect();
         serverSocket.dispose();
     }
 
+    /**
+     * Returns whether or not a client is still connected.
+     * @param index The index of the client.
+     * @return Flag connected.
+     */
     public boolean isConnected(int index) {
         return clients.get(index).isConnected();
     }
 
+    /**
+     * Returns an ArrayList containing the disconnected client's indexes.
+     * @return The list of indexes of the disconnected clients.
+     */
     public ArrayList<Integer> getDisconnectedClients() {
         ArrayList<Integer> ret = new ArrayList<Integer>();
         for (int i = 0; i < clients.size(); i++)
@@ -96,6 +123,11 @@ public class Server {
         private Thread read;
         private boolean connected;
 
+        /**
+         * Creates a ClientConnection object.
+         * Handles the connection with a specific client.
+         * @param socket The client socket.
+         */
         public ClientConnection(Socket socket) {
             client = socket;
             in = new BufferedReader(new InputStreamReader(client.getInputStream()));
@@ -126,6 +158,10 @@ public class Server {
             read.start();
         }
 
+        /**
+         * Writes a message to the client.
+         * @param message The message to write.
+         */
         public void write(String message) {
             try {
                 String toSend = message + "\n";
@@ -135,10 +171,17 @@ public class Server {
             }
         }
 
+        /**
+         * Returns the connection status of the client.
+         * @return True if connected.
+         */
         public boolean isConnected() {
             return connected;
         }
 
+        /**
+         * Disconnects the client.
+         */
         public void disconnect() {
             read.interrupt();
             client.dispose();

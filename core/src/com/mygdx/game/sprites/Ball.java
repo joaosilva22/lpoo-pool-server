@@ -23,6 +23,14 @@ public class Ball {
     private Sprite sprite;
     private float direction;
 
+    /**
+     * Creates a Ball object, representing a pool ball.
+     * @param x The x coordinate of the ball.
+     * @param y The y coordinate of the ball.
+     * @param radius The radius of the ball.
+     * @param world The world to which the ball bellongs.
+     * @param number The ball's number.
+     */
     public Ball(float x, float y, float radius, World world, int number) {
         // Cria o body do Box2D
         // Utilizado na simulacao da fisica
@@ -63,31 +71,59 @@ public class Ball {
         direction = (float) Math.PI;
     }
 
+    /**
+     * Updates the ball.
+     * @param delta The time interval between update calls.
+     */
     public void update(float delta) {
         sprite.setCenter(body.getPosition().x, body.getPosition().y);
     }
 
+    /**
+     * Renders the ball.
+     * @param batch The SpriteBatch to render the ball.
+     */
     public void render(SpriteBatch batch) {
         if (userData.getDraw())
             sprite.draw(batch);
     }
 
+    /**
+     * Returns the ball's Box2D body.
+     * @return The ball's Box2D body.
+     */
     public Body getBody() {
         return body;
     }
 
+    /**
+     * Returns the ball's position.
+     * @return Position of the ball.
+     */
     public Vector2 getPosition() {
         return body.getPosition();
     }
 
+    /**
+     * Returns the ball's direction.
+     * @return The direction of the ball.
+     */
     public float getDirection() {
         return direction;
     }
 
+    /**
+     * Sets the ball's direction.
+     * @param direction The new direction.
+     */
     public void setDirection(float direction) {
         this.direction = direction;
     }
 
+    /**
+     * Returns the ball's Box2D fixture.
+     * @return The ball's fixture.
+     */
     public Fixture getFixture() {
         return fixture;
     }

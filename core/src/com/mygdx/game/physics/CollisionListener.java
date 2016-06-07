@@ -62,21 +62,6 @@ public class CollisionListener implements ContactListener {
                 table.scheduleToRelocate(ballData);
             }
         }
-            /*// Se a fixture B for a bola
-            // A fixture A e o buraco
-            if (fixtureB.getUserData() instanceof BallData) {
-                BallData ballData = (BallData) fixtureB.getUserData();
-                // Verifica se a fixture A e uma bola normal e nao a branca
-                // Verifica se nao e a preta
-                if (ballData.getType().equals(BallData.Type.STRIPE) || ballData.getType().equals(BallData.Type.SOLID)) {
-                    // Se for a primeira bola que o jogador embolsa muda o tipo
-                    if (table.getActivePlayer().getType() == null)
-                        table.getActivePlayer().setType(ballData.getType());
-                    System.out.println("Pocketed ball number " + ballData.getNumber());
-                    table.pocketBall(ballData);
-                    table.scheduleToRelocate(ballData);
-                }
-            }*/
     }
 
     @Override

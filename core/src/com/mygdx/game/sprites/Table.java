@@ -70,6 +70,15 @@ public class Table {
     private ArrayList<Ball> scheduledToRelocate;
     private ArrayList<Vector2> relocatePositions;
 
+    /**
+     * Creates a Table object.
+     * Handles most of the simulation.
+     * @param x The x coordinate of the table.
+     * @param y The y coordinate of the table.
+     * @param w The width of the table.
+     * @param h The height of the table.
+     * @param wld The table's world.
+     */
     public Table(float x, float y, float w, float h, World wld) {
         position = new Vector2(x, y);
         width = w; height = h;
@@ -205,6 +214,10 @@ public class Table {
         // endregion
     }
 
+    /**
+     * Updates the table.
+     * @param delta The time interval between update calls.
+     */
     public void update(float delta) {
         stateManager.update(delta);
         cueBall.update(delta);
@@ -212,12 +225,24 @@ public class Table {
             ball.update(delta);
     }
 
+    /**
+     * Renders the table.
+     * @param batch The SpriteBatch to render the table.
+     */
     public void render(SpriteBatch batch) {
         cueBall.render(batch);
         for (Ball ball : balls)
             ball.render(batch);
     }
 
+    /**
+     * Shoots the cue ball with the given parameters.
+     * @param mult The impulse multiplier.
+     * @param direction The impulse direction.
+     * @param spin The angle the cue hits the ball.
+     * @param index The player index.
+     * @return True on success.
+     */
     public boolean shoot(float mult, float direction, float spin, int index) {
         activePlayerIndex = index;
 
@@ -233,6 +258,10 @@ public class Table {
         return false;
     }
 
+    /**
+     * Returns whether or not all the balls on the table are static.
+     * @return True if table is static.
+     */
     public boolean isTableStatic() {
         boolean ret = true;
         for (Ball ball : balls)
@@ -243,6 +272,10 @@ public class Table {
         return ret;
     }
 
+    /**
+     * Pockets the given ball.
+     * @param userData The user data of the ball to pocket.
+     */
     public void pocketBall(BallData userData) {
         // Embolsar uma bola do tipo 'SOLID'
         if (userData.getType().equals(BallData.Type.SOLID)) {
@@ -275,6 +308,10 @@ public class Table {
             hasPocketedBlackBall = true;
     }
 
+    /**
+     * Finds out whether or not the player will play again next turn.
+     * @return True if the player will play again.
+     */
     public boolean playerPlaysAgain() {
         // Descobrir o tipo de bolas a que o jogador esta a jogar
         BallData.Type type = getActivePlayer().getType();
@@ -308,6 +345,9 @@ public class Table {
         return false;
     }
 
+    /**
+     * Updates the game score.
+     */
     public void updateScores() {
         // Atualizar score do jogador 1
         if (players.get(0).getType() != null) {
@@ -338,6 +378,10 @@ public class Table {
         }
     }
 
+    /**
+     * Schedules the relocation of the given ball.
+     * @param ballData The user data of the ball.
+     */
     public void scheduleToRelocate(BallData ballData) {
         int index = ballData.getNumber();
         Ball toRelocate;
@@ -407,6 +451,9 @@ public class Table {
         relocatePositions.add(relocatePos);
     }
 
+    /**
+     * Relocates all the balls that are due to relocate.
+     */
     public void relocate() {
         for (int i = 0; i < scheduledToRelocate.size(); i++) {
             scheduledToRelocate.get(i).getBody().setAngularVelocity(0);
@@ -417,6 +464,9 @@ public class Table {
         relocatePositions.clear();
     }
 
+    /**
+     * Takes a pocketed solid ball and sets it back on the table.
+     */
     public void removeSolid() {
         BallData.Type playerType = getActivePlayer().getType();
         BallData ballData = (BallData) cueBall.getFixture().getUserData();
@@ -454,6 +504,9 @@ public class Table {
         }
     }
 
+    /**
+     * Takes a striped ball and sets it back on the table.
+     */
     public void removeStripe() {
         BallData.Type playerType = getActivePlayer().getType();
         BallData ballData = (BallData) cueBall.getFixture().getUserData();
@@ -491,82 +544,162 @@ public class Table {
         }
     }
 
+    /**
+     * Adds a new player to the game.
+     * @param player The player to add.
+     */
     public void addPlayer(Player player) {
         players.add(player);
     }
 
+    /**
+     * Returns this table's players.
+     * @return The table's players.
+     */
     public ArrayList<Player> getPlayers() {
         return players;
     }
 
+    /**
+     * Returns the table's state manager.
+     * @return The state manager of the table.
+     */
     public StateManager<Table, TableStates> getStateManager() {
         return stateManager;
     }
 
+    /**
+     * Returns the table's cue ball.
+     * @return The cue ball.
+     */
     public Ball getCueBall() {
         return cueBall;
     }
 
+    /**
+     * Sets flag hasPocketedSolid.
+     * @param hasPocketedSolid New value of the flag.
+     */
     public void setHasPocketedSolid(boolean hasPocketedSolid) {
         this.hasPocketedSolid = hasPocketedSolid;
     }
 
+    /**
+     * Sets flag hasPocketedStripe.
+     * @param hasPocketedStripe New value of the flag.
+     */
     public void setHasPocketedStripe(boolean hasPocketedStripe) {
         this.hasPocketedStripe = hasPocketedStripe;
     }
 
+    /**
+     * Returns the current active player.
+     * @return The activer palyer.
+     */
     public Player getActivePlayer() {
         return players.get(activePlayerIndex);
     }
 
+    /**
+     * Returns the active player index.
+     * @return The active player index.
+     */
     public int getActivePlayerIndex() {
         return activePlayerIndex;
     }
 
+    /**
+     * Returns the hasPocketedBlackBall flag.
+     * @return The flag's value.
+     */
     public boolean getHasPocketedBlackBall() {
         return hasPocketedBlackBall;
     }
 
+    /**
+     * Sets the hasPocketedBlackBall flag.
+     * @param hasPocketedBlackBall The new flag value.
+     */
     public void setHasPocketedBlackBall(boolean hasPocketedBlackBall) {
         this.hasPocketedBlackBall = hasPocketedBlackBall;
     }
 
+    /**
+     * Returns the hasPocketedCueBall flag.
+     * @return The flag value.
+     */
     public boolean getHasPocketedCueball() {
         return hasPocketedCueball;
     }
 
+    /**
+     * Sets the hasPocketedCueball flag.
+     * @param hasPocketedCueball The new flag value.
+     */
     public void setHasPocketedCueball(boolean hasPocketedCueball) {
         this.hasPocketedCueball = hasPocketedCueball;
     }
 
+    /**
+     * Returns the removeSolid flag.
+     * @return The flag value.
+     */
     public boolean isRemoveSolid() {
         return removeSolid;
     }
 
+    /**
+     * Sets the removeSolid flag.
+     * @param removeSolid The new flag value.
+     */
     public void setRemoveSolid(boolean removeSolid) {
         this.removeSolid = removeSolid;
     }
 
+    /**
+     * Returns the removeStripe flag.
+     * @return The flag value.
+     */
     public boolean isRemoveStripe() {
         return removeStripe;
     }
 
+    /**
+     * Sets the removeStripe flag.
+     * @param removeStripe The new flag value.
+     */
     public void setRemoveStripe(boolean removeStripe) {
         this.removeStripe = removeStripe;
     }
 
+    /**
+     * Sets the firstPocket flag.
+     * @param firstPocket The new flag value.
+     */
     public void setFirstPocket(boolean firstPocket) {
         this.firstPocket = firstPocket;
     }
 
+    /**
+     * Returns all the object balls on the table.
+     * @return ArrayList of object balls.
+     */
     public ArrayList<Ball> getBalls() {
         return balls;
     }
 
+    /**
+     * Returns the queue of pocketed solid balls.
+     * @return Queue of pocketed solid balls numbers.
+     */
     public Queue<Integer> getPocketedSolids() {
         return pocketedSolids;
     }
 
+    /**
+     * Returns the queue of pocketed striped balls.
+     * @return Queue of pocketed striped balls numbers.
+     */
     public Queue<Integer> getPocketedStripes() {
         return pocketedStripes;
     }

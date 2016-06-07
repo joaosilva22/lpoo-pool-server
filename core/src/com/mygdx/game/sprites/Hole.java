@@ -14,6 +14,14 @@ public class Hole {
     private Body body;
     private Fixture fixture;
 
+    /**
+     * Creates a Hole object.
+     * Represents a hole on the billiards table.
+     * @param x The x coordinate of the hole.
+     * @param y The y coordinate of the hole.
+     * @param radius The radius of the hole.
+     * @param world The World this hole bellongs in.
+     */
     public Hole(float x, float y, float radius, World world) {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(x, y);
