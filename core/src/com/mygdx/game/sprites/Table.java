@@ -39,7 +39,7 @@ public class Table {
 
     private static final float BALL_RADIUS = 0.030f;
     private static final float INIT_LINE = 0.372f;
-    private static final float MAX_IMPULSE = 0.1f;
+    private static final float MAX_IMPULSE = 0.06f;
 
     private World world;
     private float width;
@@ -336,7 +336,7 @@ public class Table {
             BallData ballData = (BallData) cueBall.getFixture().getUserData();
             if (ballData.getCollisions().size == 0) return false;
 
-            if (!ballData.getCollisions().first().getType().equals(BallData.Type.BLACK)) return false;
+            if (ballData.getCollisions().first().getType().equals(BallData.Type.BLACK)) return false;
 
             if (!ballData.getCollisions().first().getType().equals(BallData.Type.SOLID) && !firstPocket)
                 return false;
@@ -350,7 +350,7 @@ public class Table {
             BallData ballData = (BallData) cueBall.getFixture().getUserData();
             if (ballData.getCollisions().size == 0) return false;
 
-            if (!ballData.getCollisions().first().getType().equals(BallData.Type.BLACK)) return false;
+            if (ballData.getCollisions().first().getType().equals(BallData.Type.BLACK)) return false;
 
             if (!ballData.getCollisions().first().getType().equals(BallData.Type.STRIPE) && !firstPocket)
                 return false;
